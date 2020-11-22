@@ -15,6 +15,9 @@ class Main(QWidget):
     def initUI(self):
         uic.loadUi("main.ui", self)
         self.view()
+
+        self.pushButton.clicked.connect(self.open_menu)
+        self.pushButton_2.clicked.connect(self.view)
         self.setWindowTitle('Coffee, coffee, coffee!')
         self.show()
 
@@ -37,6 +40,73 @@ class Main(QWidget):
                 self.tableWidget.setItem(
                     i, j, QTableWidgetItem(str(elem)))
         self.tableWidget.resizeColumnsToContents()
+        self.con.close()
+
+    def open_menu(self):
+        self.menu = Menu()
+        self.menu.show()
+
+
+class Menu(QWidget):
+    def __init__(self):
+        super().__init__()
+        self.initUI()
+
+    def initUI(self):
+        uic.loadUi("addEditCoffeeForm.ui", self)
+        self.show()
+
+        self.pushButton.clicked.connect(self.add_item)
+        self.pushButton_2.clicked.connect(self.del_item)
+
+    def add_item(self):
+        self.con = sqlite3.connect('coffee.sqlite')
+        self.cur = self.con.cursor()
+
+        if self.lineEdit.text() != '' and \
+                self.lineEdit_2.text() != '' and \
+                self.lineEdit_4.text() != '' and \
+                self.lineEdit_5.text() != '' and \
+                self.lineEdit_6.text() != '':
+            zapros = 'INSERT INTO Coffee(Название_сорта, ' \
+                     'Степень_обжарки, ' \
+                     'Молотый_или_нет, ' \
+                     'Описание_вкуса, ' \
+                     'Цена, О' \
+                     'бъем_упаковки) VALUES("{}", "{}", "{}", "{}", "{}", "{}")'.format(
+                self.lineEdit.text(),
+                self.lineEdit_2.text(),
+                self.comboBox.currentText(),
+                self.lineEdit_4.text(),
+                self.lineEdit_5.text(),
+                self.lineEdit_6.text())
+            self.cur.execute(zapros)
+            self.con.commit()
+        else:
+            QtWidgets.QMessageBox.information(self, 'Error', 'Заполните все поля!')
+        self.con.close()
+        self.exit()
+
+    def del_item(self):
+        self.con = sqlite3.connect('coffee.sqlite')
+        self.cur = self.con.cursor()
+
+        is_yes = QtWidgets.QMessageBox.question(
+            self, 'Agree', 'Удалить {} элемент?'.format(
+                self.spinBox.text()),
+            QtWidgets.QMessageBox.Yes,
+            QtWidgets.QMessageBox.No)
+
+        if is_yes == QtWidgets.QMessageBox.Yes:
+            zapros = 'DELETE FROM Coffee WHERE ID = {}'.format(self.spinBox.text())
+            self.cur.execute(zapros)
+            self.con.commit()
+        self.con.close()
+        self.exit()
+
+    def exit(self):
+        self.close()
+
 
 
 def except_hook(cls, exception, traceback):
