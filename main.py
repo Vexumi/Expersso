@@ -15,7 +15,7 @@ class Main(QWidget):
     def initUI(self):
         uic.loadUi("main.ui", self)
         self.view()
-        self.setWindowTitle('QCB')
+        self.setWindowTitle('Coffee, coffee, coffee!')
         self.show()
 
     def view(self):
