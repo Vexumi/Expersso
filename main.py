@@ -36,6 +36,7 @@ class Main(QWidget):
             for j, elem in enumerate(row):
                 self.tableWidget.setItem(
                     i, j, QTableWidgetItem(str(elem)))
+        self.tableWidget.resizeColumnsToContents()
 
 
 def except_hook(cls, exception, traceback):
